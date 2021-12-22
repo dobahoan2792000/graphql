@@ -1,101 +1,32 @@
 const resolvers = {
   Query: {
-    books: () => [
-      {
-        id: 1,
-        name: "De men",
-        genre: "Advanture",
-        author: 1
-      },
-      {
-        id: 2,
-        name: "Meo",
-        genre: "Animal",
-        author: 2
-      },
-    ],
-    authors: () => [
-      {
-        id: 1,
-        name: "Nah",
-        age: 20,
-        books: [1,2]
-      },
-      {
-        id: 2,
-        name: "Od",
-        age: 21,
-        books: [1,2]
-      },
-    ],
-    book: (parent, args) => [
-        {
-          id: 1,
-          name: "De men",
-          genre: "Advanture",
-          author: 1
-        },
-        {
-          id: 2,
-          name: "Meo",
-          genre: "Animal",
-          author: 2
-        },
-      ].find(book => book.id == args.id),
-    author: (parent, args) => [
-        {
-          id: 1,
-          name: "Nah",
-          age: 20,
-          books: [1,2]
-        },
-        {
-          id: 2,
-          name: "Od",
-          age: 21,
-          books: [1,2]
-        },
-      ].find(author => author.id == args.id)
+    books: async (parent, args, context) => await context.mongoDB.getAllBooks(),
+    authors: async (parent, args, context) => {
+      return await context.mongoDB.getAllAuthors();
+    },
+    book: async (parent, args, context) =>
+      await context.mongoDB.getAllBooks().find((book) => book.id == args.id),
+    author: async (parent, args, context) =>
+      await context.mongoDB.getAuthorById(args.id),
   },
   Mutation: {
-    createAuthor: (parent, args) => {
-      return args
-    }
+    createAuthor: async (parent, args, context) => {
+      return await context.mongoDB.createAuthor(args);
+    },
+    createBook: async (parent, args, context) => {
+      return await context.mongoDB.createBook(args);
+    },
   },
-  Book:{
-    author: (parent,args) => {
-        return [
-            {
-              id: 1,
-              name: "Nah",
-              age: 20,
-            },
-            {
-              id: 2,
-              name: "Od",
-              age: 21,
-            },
-          ].find(author => author.id == parent.author)
-    }
-  }, 
-  Author:{
-    books : (parent, args) => {
-      return [
-        {
-          id: 1,
-          name: "De men",
-          genre: "Advanture",
-          author: 1
-        },
-        {
-          id: 2,
-          name: "Meo",
-          genre: "Animal",
-          author: 2
-        },
-      ].filter(p => p.author == parent.id)
-    }
-  }
+  Book: {
+    author: async (parent, args, context) => {
+      return await context.mongoDB.getAuthorById(parent.author);
+    },
+  },
+  Author: {
+    books: async (parent, args, context) => {
+      return await context.mongoDB.getAllBooks({ author: parent.id });
+    },
+  },
 };
 
 export default resolvers;

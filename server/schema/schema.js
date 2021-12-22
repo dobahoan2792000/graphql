@@ -10,7 +10,8 @@ const typeDefs = gql`
     type Author{
         id: ID!,
         name: String,
-        age: Int
+        age: Int,
+        books: [Book]
     }
     #ROOT TYPE: DUNG DE DINH NGHIA QUERY
     type Query {
@@ -18,6 +19,10 @@ const typeDefs = gql`
         book (id: ID!) : Book,
         authors: [Author],
         author (id: ID!): Author
+    }
+
+    type Mutation {
+        createAuthor(id: ID!, name: String, age: Int): Author
     }
 
 `
